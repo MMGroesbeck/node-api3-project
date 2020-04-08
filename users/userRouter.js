@@ -5,6 +5,8 @@ const PostDb = require('../posts/postDb.js');
 
 const router = express.Router();
 
+// endpoints
+
 router.post('/', validateUser, (req, res) => {
   UserDb.insert(req.body)
   .then(user => {
