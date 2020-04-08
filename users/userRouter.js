@@ -1,15 +1,31 @@
 const express = require('express');
 
 const UserDb = require('./userDb.js');
+const PostDb = require('../posts/postDb.js');
 
 const router = express.Router();
 
 router.post('/', validateUser, (req, res) => {
-  // do your magic!
+  UserDb.insert(req.body)
+  .then(user => {
+    res.status(201).json(user);
+  })
+  .catch(err => {
+    res.status(500).json({ message: "Error saving new user" });
+  });
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
-  // do your magic!
+  PostDb.insert({
+    text: req.body.text,
+    user_id: req.params.id
+  })
+  .then(post => {
+    res.status(201).json(post);
+  })
+  .catch(err => {
+    res.status(500).json({ message: "Error saving new post", err });
+  })
 });
 
 router.get('/', (req, res) => {
@@ -41,11 +57,42 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  UserDb.remove(req.params.id)
+  .then(count => {
+    switch(count){
+      case 0:
+        res.status(500).json({ message: "Error: no user deleted." });
+        break;
+      case 1:
+        res.status(200).json({ message: "User deleted." });
+        break;
+      default:
+        res.status(500).json({ message: "Error: multiple users deleted." });
+        break;
+    }
+  })
+  .catch(err => {
+    res.status(500).json({ message: "Error deleting user." })
+  })
 });
 
 router.put('/:id', validateUserId, (req, res) => {
-  // do your magic!
+  UserDb.update(req.params.id, req.body)
+  .then(count => {
+    switch(count){
+      case 0:
+        res.status(500).json({ message: "Error: no user updated." });
+        break;
+      case 1:
+        res.status(200).json({ message: "User updated." });
+        break;
+      default:
+        res.status(500).json({ message: "Error: multiple users updated?" });
+    }
+  })
+  .catch(err => {
+    res.status(500).json({ message: "Error updating user." });
+  })
 });
 
 //custom middleware:
