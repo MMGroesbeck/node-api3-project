@@ -100,7 +100,8 @@ router.put('/:id', validateUserId, (req, res) => {
 //custom middleware:
 
 function validateUserId(req, res, next) {
-  UserDb.getById(req.params.id)
+  if (req.params.id){
+    UserDb.getById(req.params.id)
   .then(thisUser => {
     if (thisUser) {
       req.user = thisUser;
@@ -112,6 +113,10 @@ function validateUserId(req, res, next) {
   .catch(err => {
     res.status(500).json({ message: "Error checking for user." });
   })
+  } else {
+    res.status(400).json({ message: "User id required."});
+  }
+  
 }
 
 function validateUser(req, res, next) {
